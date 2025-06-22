@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "690102196204",
+    "project_id": "alumea-d1912",
+    "storage_bucket": "alumea-d1912.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690102196204:android:c67cea4498d787c54e12c9",
+        "android_client_info": {
+          "package_name": "com.example.alumea"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "690102196204-6rincnlngjq9ih4nuptlmg2qj4b7jtbe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.alumea",
+            "certificate_hash": "8cb5de0a117fd2de9a13caf2fefcc33afea95190"
+          }
+        },
+        {
+          "client_id": "690102196204-1d675ug139ivu9dvlt8j2335ckrdemqs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDh5Icmt34oglzjzYQVGVsj96iUGiBPZB4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "690102196204-1d675ug139ivu9dvlt8j2335ckrdemqs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "690102196204-1fe2mmr3gorcvlpf8dfdrvu537pp6b64.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.thrivio"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
