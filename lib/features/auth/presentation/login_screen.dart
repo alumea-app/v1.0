@@ -1,59 +1,51 @@
-import 'package:alumea/features/auth/data/auth_repository.dart';
+import 'package:alumea/features/auth/application/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _LogginScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+     final formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-class _LogginScreenState extends ConsumerState<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isLoading = false;
+ ref.listen<LoginState>(loginControllerProvider, (previous, next) {
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    });
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+    // A boolean to manage the loading state for user feedback.
+     final loginState = ref.watch(loginControllerProvider);
 
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      try {
-        await ref.read(authRepositoryProvider).signInWithEmailAndPassword(
-              email: _emailController.text.trim(),
-              password: _passwordController.text.trim(),
-            );
-        // On success, our AuthWrapper will automatically navigate us. No push needed.
-      } catch (e) {
-        // ... (Handle errors with a SnackBar) ...
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Login failed. Please try again.'),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
-          setState(() => _isLoading = false);
+  Future<void> submitForm() async {
+      if (formKey.currentState!.validate()) {
+        final success = await ref
+            .read(loginControllerProvider.notifier)
+            .signIn(emailController.text.trim(), passwordController.text.trim());
+        
+        if (success && context.mounted) {
+          // The AuthWrapper will handle the navigation automatically now.
+          // If we are in a modal sheet, we might want to pop it.
+          Navigator.of(context).pop();
         }
       }
     }
-  }
 
-  Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(title: const Text('Sign In')),
         body: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Form(
-            key: _formKey,
+            key: formKey,
             // Using a Column with MainAxisSize.min makes the bottom sheet only as
             // tall as its content needs to be.
             child: Column(
@@ -70,7 +62,7 @@ class _LogginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 TextFormField(
-                  controller: _emailController,
+                  controller: emailController,
                   decoration: const InputDecoration(labelText: 'Email'),
                   keyboardType: TextInputType.emailAddress,
                   // Validator function for email.
@@ -85,7 +77,7 @@ class _LogginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _passwordController,
+                  controller: passwordController,
                   decoration: const InputDecoration(labelText: 'Password'),
                   obscureText: true, // Hides the password text.
                   // Validator function for password.
@@ -98,11 +90,11 @@ class _LogginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 // Conditionally show either the button or a loading indicator.
-                if (_isLoading)
+                if (loginState.isLoading)
                   const Center(child: CircularProgressIndicator())
                 else
                   ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: submitForm,
                     child: const Text('Create Account & Continue'),
                   ),
               ],
@@ -110,5 +102,5 @@ class _LogginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       );
-    }
+    } 
   }

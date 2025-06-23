@@ -58,7 +58,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Routemaster.of(context).push('/chat');
+                    Routemaster.of(context).push('/onboarding-chat');
                   },
                   child:
                       const Text("Let's Start", style: TextStyle(fontSize: 16)),

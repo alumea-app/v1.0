@@ -59,11 +59,11 @@ class OnboardingController extends _$OnboardingController {
       _addDelayedMessage(
           "Thank you for sharing that with me. It takes courage to write that down.",
           stage: OnboardingStage.promptingRegistration,
-          delayMs: 1200);
+          delayMs: 300);
       _addDelayedMessage(
           "To make sure we can save this thought and all of our future conversations securely, let's create your private account.",
           stage: OnboardingStage.promptingRegistration,
-          delayMs: 3000);
+          delayMs: 400);
     }
   }
 

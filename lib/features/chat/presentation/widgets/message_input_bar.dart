@@ -25,6 +25,7 @@ class MessageInputBar extends StatelessWidget {
                 ),
                 child: TextField(
                   controller: controller,
+                  textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(
                     hintText: "What's on your mind?",
                     hintStyle: TextStyle(fontSize: 14),

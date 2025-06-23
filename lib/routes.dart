@@ -5,12 +5,19 @@ import 'package:alumea/features/onboarding/presentation/onboarding_welcome_scree
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
-final routes = RouteMap(
+// Routes accessible when the user is logged OUT
+final loggedOutRoutes = RouteMap(
   routes: {
     '/': (_) => const MaterialPage(child: OnboardingWelcomeScreen()),
-    // '/': (_) => const MaterialPage(child: AuthWrapper()),
-    '/onboardingChat': (_) => const MaterialPage(child: OnboardingChatScreen()),
-    '/chat': (_) => MaterialPage(child: ChatScreen()),
-    '/login': (_) => MaterialPage(child: LoginScreen()),
+    '/onboarding-chat': (_) => const MaterialPage(child: OnboardingChatScreen()),
+    '/login': (_) => const MaterialPage(child: LoginScreen()),
+  },
+);
+
+// Routes accessible when the user is logged IN
+final loggedInRoutes = RouteMap(
+  onUnknownRoute: (_) => const Redirect('/'),
+  routes: {
+    '/': (_) => const MaterialPage(child: ChatScreen()),
   },
 );

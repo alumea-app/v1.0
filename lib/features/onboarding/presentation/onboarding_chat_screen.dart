@@ -17,25 +17,31 @@ class OnboardingChatScreen extends ConsumerWidget {
       if (next.stage == OnboardingStage.promptingRegistration) {
         // Prevent showing multiple bottom sheets
         if (ModalRoute.of(context)?.isCurrent != true) {
-             Navigator.of(context).pop();
+          Navigator.of(context).pop();
         }
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           // You may want to prevent it from being dismissed by swiping down
-          isDismissible: false, 
+          isDismissible: false,
           enableDrag: false,
           builder: (ctx) => Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: const RegistrationForm(),
-            ),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: const RegistrationForm(),
+          ),
         );
       }
     });
 
     final onboardingState = ref.watch(onboardingControllerProvider);
-    
+
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        forceMaterialTransparency: true,
+        scrolledUnderElevation: 20,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -51,7 +57,9 @@ class OnboardingChatScreen extends ConsumerWidget {
             controller: controller,
             // CORRECTLY calls ITS OWN controller
             onSend: () {
-              ref.read(onboardingControllerProvider.notifier).submitMessage(controller.text);
+              ref
+                  .read(onboardingControllerProvider.notifier)
+                  .submitMessage(controller.text);
               controller.clear();
             },
           ),

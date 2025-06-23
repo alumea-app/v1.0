@@ -1,86 +1,56 @@
+import 'package:alumea/features/auth/application/login_controller.dart';
 import 'package:alumea/features/auth/data/auth_repository.dart'; // To access our auth provider
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 
-class RegistrationForm extends ConsumerStatefulWidget {
+class RegistrationForm extends ConsumerWidget {
   const RegistrationForm({Key? key}) : super(key: key);
 
-  @override
-  _RegistrationFormState createState() => _RegistrationFormState();
-}
-
-class _RegistrationFormState extends ConsumerState<RegistrationForm> {
   // A GlobalKey to uniquely identify our Form widget and allow validation.
-  final _formKey = GlobalKey<FormState>();
 
-  // Controllers to manage the text being entered.
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  // A boolean to manage the loading state for user feedback.
-  bool _isLoading = false;
-
-  // It's crucial to dispose of controllers when the widget is removed to prevent memory leaks.
   @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = GlobalKey<FormState>();
 
-  /// Handles the form submission logic.
-  Future<void> _submitForm() async {
-    // First, validate the form using the key. If it's not valid, do nothing.
-    if (_formKey.currentState!.validate()) {
-      // Set loading state to true to show the progress indicator
-      setState(() {
-        _isLoading = true;
-      });
+    // Controllers to manage the text being entered.
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
 
-      // Use a try/catch block to gracefully handle potential errors from Firebase.
-      try {
-        // Read the auth repository from our provider and call the sign-up method.
-        await ref.read(authRepositoryProvider).signUpWithEmailAndPassword(
-              email: _emailController.text.trim(),
-              password: _passwordController.text.trim(),
-            );
+    ref.listen<LoginState>(loginControllerProvider, (previous, next) {
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    });
 
-        // IMPORTANT: On success, navigate the user to the main chat screen.
-        // We use .replace() so the user cannot press the "back" button to
-        // return to the onboarding flow.
-        if (mounted) {
-          Routemaster.of(context).replace('/onboardingChat');
-        }
-      } catch (e) {
-        // If an error occurs (e.g., email already in use, weak password),
-        // show a user-friendly message in a SnackBar.
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Registration failed. Please try again.'),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
-        }
-      } finally {
-        // IMPORTANT: Always set loading back to false, even if an error occurs.
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
+    // A boolean to manage the loading state for user feedback.
+     final loginState = ref.watch(loginControllerProvider);
+
+    Future<void> submitForm() async {
+      if (formKey.currentState!.validate()) {
+        final success = await ref
+            .read(loginControllerProvider.notifier)
+            .signUp(emailController.text.trim(), passwordController.text.trim());
+        
+        if (success && context.mounted) {
+          // The AuthWrapper will handle the navigation automatically now.
+          // If we are in a modal sheet, we might want to pop it.
+          Navigator.of(context).pop();
         }
       }
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
+
     // We add padding here to ensure our form content isn't touching the screen edges.
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Form(
-        key: _formKey,
+        key: formKey,
         // Using a Column with MainAxisSize.min makes the bottom sheet only as
         // tall as its content needs to be.
         child: Column(
@@ -97,7 +67,7 @@ class _RegistrationFormState extends ConsumerState<RegistrationForm> {
             ),
             const SizedBox(height: 24),
             TextFormField(
-              controller: _emailController,
+              controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
               // Validator function for email.
@@ -112,7 +82,7 @@ class _RegistrationFormState extends ConsumerState<RegistrationForm> {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: _passwordController,
+              controller: passwordController,
               decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true, // Hides the password text.
               // Validator function for password.
@@ -125,11 +95,11 @@ class _RegistrationFormState extends ConsumerState<RegistrationForm> {
             ),
             const SizedBox(height: 32),
             // Conditionally show either the button or a loading indicator.
-            if (_isLoading)
+            if (loginState.isLoading)
               const Center(child: CircularProgressIndicator())
             else
               ElevatedButton(
-                onPressed: _submitForm,
+                onPressed: submitForm,
                 child: const Text('Create Account & Continue'),
               ),
             const SizedBox(height: 8),
