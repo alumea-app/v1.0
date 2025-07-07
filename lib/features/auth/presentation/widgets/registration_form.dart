@@ -1,11 +1,10 @@
 import 'package:alumea/features/auth/application/login_controller.dart';
-import 'package:alumea/features/auth/data/auth_repository.dart'; // To access our auth provider
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 
 class RegistrationForm extends ConsumerWidget {
-  const RegistrationForm({Key? key}) : super(key: key);
+  const RegistrationForm({super.key});
 
   // A GlobalKey to uniquely identify our Form widget and allow validation.
 
@@ -67,32 +66,42 @@ class RegistrationForm extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
-              // Validator function for email.
-              validator: (value) {
-                if (value == null ||
-                    value.trim().isEmpty ||
-                    !value.contains('@')) {
-                  return 'Please enter a valid email.';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true, // Hides the password text.
-              // Validator function for password.
-              validator: (value) {
-                if (value == null || value.trim().length < 6) {
-                  return 'Password must be at least 6 characters.';
-                }
-                return null;
-              },
-            ),
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null ||
+                          value.trim().isEmpty ||
+                          !value.contains('@')) {
+                        return 'Please enter a valid email.';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: const Icon(Icons.lock_outline_rounded),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.trim().length < 6) {
+                        return 'Password must be at least 6 characters.';
+                      }
+                      return null;
+                    },
+                  ),
             const SizedBox(height: 32),
             // Conditionally show either the button or a loading indicator.
             if (loginState.isLoading)
