@@ -1,46 +1,72 @@
-// lib/features/chat/data/chat_repository.dart
+import 'dart:async';
 import 'package:alumea/features/chat/domain/chat_message.dart';
-import 'package:cloud_functions/cloud_functions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatRepository {
-  final FirebaseFunctions _functions;
-  ChatRepository(this._functions);
+  final FirebaseFirestore firestore;
+  final FirebaseAuth auth;
 
-  /// Gets an intelligent response from Lumi by calling our secure Cloud Function.
-  Future<ChatMessage> getLumiResponse(String message, String sessionId) async {
-    try {
-      // 1. Reference the callable function
-      final callable = _functions.httpsCallable('getLumiResponse');
-      
-      // 2. Call the function with the required parameters
-      final result = await callable.call<Map<String, dynamic>>({
-        'text': message,
-        'sessionId': sessionId,
-      });
+  ChatRepository(this.firestore, this.auth);
 
-      // 3. Extract the text from the response
-      final lumiText = result.data['text'] as String? ?? "Sorry, I had a moment of confusion.";
-      return ChatMessage(text: lumiText, sender: Sender.lumi);
+  String? get userId => auth.currentUser?.uid;
 
-    } on FirebaseFunctionsException catch (e) {
-      // Handle specific cloud function errors
-      print("Cloud Functions Error: ${e.code} - ${e.message}");
-      return const ChatMessage(text: "Sorry, I'm having trouble connecting right now.", sender: Sender.lumi);
-    } catch (e) {
-      // Handle other generic errors
-      print("Generic Error: $e");
-      return const ChatMessage(text: "Sorry, I had a moment of confusion.", sender: Sender.lumi);
-    }
+  Future<void> saveMessageToHistory(ChatMessage message) async {
+    if (userId == null) return;
+    await firestore
+        .collection('users')
+        .doc(userId)
+        .collection('chat_history')
+        .add({
+      'text': message.text,
+      'sender': message.sender.name,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<DocumentReference> createPrompt(String text) {
+    return firestore.collection('conversations').add({'prompt': text});
+  }
+
+  Stream<String?> getResponseStream(DocumentReference docRef) {
+    return docRef.snapshots().map((snapshot) {
+      if (!snapshot.exists) return null;
+      final data = snapshot.data() as Map<String, dynamic>?;
+      return data?['response'] as String?;
+    });
+  }
+
+  /// THIS IS THE METHOD WE WILL USE - It correctly returns a Stream.
+  Stream<List<ChatMessage>> getChatHistoryStream() {
+    if (userId == null) return Stream.value([]);
+    return firestore
+        .collection('users')
+        .doc(userId)
+        .collection('chat_history')
+        .orderBy('timestamp', descending: false) // Order chronologically
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return ChatMessage(
+          text: data['text'],
+          sender:
+              data['sender'] == 'lumi' ? Sender.lumi : Sender.user,
+        );
+      }).toList();
+    });
   }
 }
 
-// --- Provider ---
-// Provider for the FirebaseFunctions instance
-final firebaseFunctionsProvider =
-    Provider<FirebaseFunctions>((ref) => FirebaseFunctions.instance);
-
-// Updated ChatRepository provider
+// --- Providers ---
+final firestoreProvider =
+    Provider<FirebaseFirestore>((ref) => FirebaseFirestore.instance);
+final firebaseAuthProvider =
+    Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
-  return ChatRepository(ref.watch(firebaseFunctionsProvider));
+  return ChatRepository(
+    ref.watch(firestoreProvider),
+    ref.watch(firebaseAuthProvider),
+  );
 });
