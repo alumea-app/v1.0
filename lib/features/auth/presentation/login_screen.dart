@@ -25,7 +25,7 @@ class LoginScreen extends ConsumerWidget {
 
     Future<void> submitForm() async {
       if (formKey.currentState!.validate()) {
-        ref.read(loginControllerProvider.notifier).signUp(
+        ref.read(loginControllerProvider.notifier).signIn(
               emailController.text.trim(),
               passwordController.text.trim(),
             );

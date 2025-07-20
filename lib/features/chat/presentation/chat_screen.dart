@@ -55,7 +55,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         child: Center(
                           child: Text(
                             _formatSessionDate(session.startedAt),
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         ),
                       ),
@@ -65,7 +66,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Something went wrong: $err')),
+              error: (err, stack) =>
+                  Center(child: Text('Something went wrong: $err')),
             ),
           ),
           MessageInputBar(
@@ -82,15 +84,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ],
       ),
     );
-
   }
 
   String _formatSessionDate(DateTime date) {
     final now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day) {
+    if (date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day) {
       return 'Today';
     }
     return '${date.day}/${date.month}/${date.year}';
   }
-  }
-
+}
