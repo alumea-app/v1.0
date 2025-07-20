@@ -16,7 +16,26 @@ class MessageBubble extends StatelessWidget {
       child: Row(
         mainAxisAlignment:
             isUserMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          if (!isUserMessage) ...[
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: SizedBox(
+                  height: 30,
+                  width: 30,
+                  child: CircleAvatar(
+                      child: SvgPicture.asset(
+                    'assets/logo.svg',
+                    height: 22,
+                    color: Colors.white,
+                  )),
+                ),
+              ),
+            ),
+          ],
           Container(
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.75,
@@ -27,12 +46,12 @@ class MessageBubble extends StatelessWidget {
                   ? AppTheme.secondaryLavender
                   : AppTheme.darkerGraySurface,
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(20),
-                topRight: const Radius.circular(20),
+                topLeft: const Radius.circular(10),
+                topRight: const Radius.circular(10),
                 bottomLeft:
-                    isUserMessage ? const Radius.circular(20) : Radius.zero,
+                    isUserMessage ? const Radius.circular(10) : Radius.zero,
                 bottomRight:
-                    isUserMessage ? Radius.zero : const Radius.circular(20),
+                    isUserMessage ? Radius.zero : const Radius.circular(10),
               ),
             ),
             child: Column(
@@ -47,14 +66,6 @@ class MessageBubble extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (!isUserMessage) ...[
-                  CircleAvatar(
-                      child: SvgPicture.asset(
-                    'assets/logo.svg',
-                    height: 24,
-                    color: Colors.white,
-                  )),
-                ],
               ],
             ),
           ),

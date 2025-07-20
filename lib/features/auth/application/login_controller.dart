@@ -1,9 +1,8 @@
-// lib/features/auth/application/login_controller.dart
 import 'dart:async';
 import 'package:alumea/features/auth/data/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// 1. Define the possible states for our UI
+// LoginState remains the same
 class LoginState {
   const LoginState({this.isLoading = false, this.error});
   final bool isLoading;
@@ -17,44 +16,39 @@ class LoginState {
   }
 }
 
-// 2. Create the StateNotifier
 class LoginController extends StateNotifier<LoginState> {
   LoginController(this.ref) : super(const LoginState());
 
   final Ref ref;
 
-  Future<bool> signUp(String email, String password) async {
+  Future<void> signUp(String email, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
-    try {
-      await ref.read(authRepositoryProvider).signUpWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      state = state.copyWith(isLoading: false);
-      return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Registration failed. Please try again.');
-      return false;
-    }
+    final res = await ref
+        .read(authRepositoryProvider)
+        .signUpWithEmailAndPassword(email: email, password: password);
+
+    // .fold() handles the Either result.
+    // The first function is for the Left (Failure) case.
+    // The second function is for the Right (Success) case.
+    res.fold(
+      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (_) => state = state.copyWith(isLoading: false),
+    );
   }
-  
-  Future<bool> signIn(String email, String password) async {
+
+  Future<void> signIn(String email, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
-    try {
-      await ref.read(authRepositoryProvider).signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      state = state.copyWith(isLoading: false);
-      return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Login failed. Please check your credentials.');
-      return false;
-    }
+    final res = await ref
+        .read(authRepositoryProvider)
+        .signInWithEmailAndPassword(email: email, password: password);
+    
+    res.fold(
+      (failure) => state = state.copyWith(isLoading: false, error: failure.message),
+      (_) => state = state.copyWith(isLoading: false),
+    );
   }
 }
 
-// 3. Create the Provider
-final loginControllerProvider = StateNotifierProvider.autoDispose<LoginController, LoginState>((ref) {
-  return LoginController(ref);
-});
+final loginControllerProvider =
+    StateNotifierProvider.autoDispose<LoginController, LoginState>(
+        (ref) => LoginController(ref));

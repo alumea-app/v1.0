@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:alumea/features/chat/data/chat_repository.dart';
 import 'package:alumea/features/chat/domain/chat_message.dart';
+import 'package:alumea/features/chat/domain/chat_session.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'chat_controller.g.dart';
@@ -8,17 +10,16 @@ part 'chat_controller.g.dart';
 // 1. NEW: Create a dedicated StreamProvider for the chat history.
 // This provider will watch the stream from the repository and expose it to the UI.
 @riverpod
-Stream<List<ChatMessage>> chatHistory(ChatHistoryRef ref) {
-  return ref.watch(chatRepositoryProvider).getChatHistoryStream();
+Stream<Map<ChatSession, List<ChatMessage>>> chatHistory(Ref ref) {
+  return ref.watch(chatRepositoryProvider).getSessionChatHistoryStream();
 }
-
 
 // 2. REFACTORED: The controller is now much simpler.
 // It is only responsible for performing actions, not for holding state.
 @riverpod
 class ChatController extends _$ChatController {
   StreamSubscription? _responseSubscription;
-  
+
   // The build method is now empty as this is an action-only controller.
   @override
   void build() {

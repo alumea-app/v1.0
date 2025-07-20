@@ -5,14 +5,25 @@ import 'package:alumea/features/chat/presentation/widgets/message_input_bar.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChatScreen extends ConsumerWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 1. We now watch our new, dedicated `chatHistoryProvider`.
-    final messagesAsyncValue = ref.watch(chatHistoryProvider);
-    final messageInputController = TextEditingController();
+  ConsumerState<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends ConsumerState<ChatScreen> {
+  final messageInputController = TextEditingController();
+
+  @override
+  void dispose() {
+    messageInputController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sessionsAsyncValue = ref.watch(chatHistoryProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -27,20 +38,30 @@ class ChatScreen extends ConsumerWidget {
       body: Column(
         children: [
           Expanded(
-            // 2. Use .when to handle the stream's loading/data/error states.
-            child: messagesAsyncValue.when(
-              data: (messages) {
-                if (messages.isEmpty) {
+            child: sessionsAsyncValue.when(
+              data: (sessionMap) {
+                if (sessionMap.isEmpty) {
                   return const Center(child: Text("Say hello to Lumi!"));
                 }
-                return ListView.builder(
-                  // We no longer need to reverse the list here
-                  // as it's ordered correctly by timestamp in the repository.
+                // Display sessions grouped by day
+                return ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    return MessageBubble(message: messages[index]);
-                  },
+                  children: sessionMap.entries.expand((entry) {
+                    final session = entry.key;
+                    final messages = entry.value;
+                    return [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Center(
+                          child: Text(
+                            _formatSessionDate(session.startedAt),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ),
+                      ),
+                      ...messages.map((msg) => MessageBubble(message: msg)),
+                    ];
+                  }).toList(),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -51,7 +72,6 @@ class ChatScreen extends ConsumerWidget {
             controller: messageInputController,
             onSend: () {
               if (messageInputController.text.trim().isNotEmpty) {
-                // 3. Call the sendMessage method on our action controller.
                 ref
                     .read(chatControllerProvider.notifier)
                     .sendMessage(messageInputController.text.trim());
@@ -62,5 +82,15 @@ class ChatScreen extends ConsumerWidget {
         ],
       ),
     );
+
   }
-}
+
+  String _formatSessionDate(DateTime date) {
+    final now = DateTime.now();
+    if (date.year == now.year && date.month == now.month && date.day == now.day) {
+      return 'Today';
+    }
+    return '${date.day}/${date.month}/${date.year}';
+  }
+  }
+

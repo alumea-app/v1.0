@@ -1,4 +1,5 @@
 import 'package:alumea/features/auth/application/login_controller.dart';
+import 'package:alumea/utils/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
@@ -12,30 +13,23 @@ class LoginScreen extends ConsumerWidget {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
 
+    // Use ref.listen to perform actions, like showing a snackbar
     ref.listen<LoginState>(loginControllerProvider, (previous, next) {
       if (next.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error!),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        // If the new state has an error, show it!
+        showSnackbar(context, next.error!);
       }
     });
 
-    // A boolean to manage the loading state for user feedback.
     final loginState = ref.watch(loginControllerProvider);
 
     Future<void> submitForm() async {
       if (formKey.currentState!.validate()) {
-        final success = await ref.read(loginControllerProvider.notifier).signIn(
-            emailController.text.trim(), passwordController.text.trim());
-
-        if (success && context.mounted) {
-          // The AuthWrapper will handle the navigation automatically now.
-          // If we are in a modal sheet, we might want to pop it.
-          Navigator.of(context).pop();
-        }
+        ref.read(loginControllerProvider.notifier).signUp(
+              emailController.text.trim(),
+              passwordController.text.trim(),
+            );
+        // On success, our reactive router will handle navigation automatically.
       }
     }
 
