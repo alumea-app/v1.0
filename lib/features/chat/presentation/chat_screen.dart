@@ -1,170 +1,124 @@
-import 'package:alumea/features/auth/data/auth_repository.dart';
 import 'package:alumea/features/chat/application/chat_controller.dart';
 import 'package:alumea/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:alumea/features/chat/presentation/widgets/message_input_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// The screen MUST be a ConsumerStatefulWidget to manage controllers.
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({Key? key}) : super(key: key);
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
-  final messageInputController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
+  // Controllers are defined here, outside the build method.
+  late final TextEditingController _messageInputController;
+  late final ScrollController _scrollController;
+  final FocusNode _focusNode = FocusNode();
 
-  int _previousMessageCount = 0;
+  @override
+  void initState() {
+    super.initState();
+    // Controllers are initialized ONCE when the widget is first created.
+    _messageInputController = TextEditingController();
+    _scrollController = ScrollController();
+    _focusNode.addListener(_onFocusChange);
+  }
 
   @override
   void dispose() {
-    messageInputController.dispose();
+    // Controllers are disposed of when the widget is destroyed to prevent memory leaks.
+    _messageInputController.dispose();
     _scrollController.dispose();
+     _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
     super.dispose();
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      // Use a small delay to ensure the UI has been updated with the new message
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      });
+   void _onFocusChange() {
+    if (_focusNode.hasFocus) {
+      // If the text field gains focus, scroll to the bottom
+      _scrollToBottom();
     }
   }
 
-  // Helper method to dismiss the keyboard
-  void _dismissKeyboard() {
-    FocusScope.of(context).unfocus();
+   void _scrollToBottom() {
+    // A short delay ensures the keyboard is up before we scroll
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.minScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final sessionsAsyncValue = ref.watch(chatHistoryProvider);
+    ref.listen(chatHistoryProvider, (previous, next) {
+      if (next.hasValue && (previous?.value?.length ?? 0) < next.value!.length) {
+        _scrollToBottom(); // Use our new helper method
+      }
+    });
+
+    // We watch our single source of truth for the message list.
+    final messagesAsyncValue = ref.watch(chatHistoryProvider);
+
+    // Listen to the provider to auto-scroll when new messages arrive.
+    // ref.listen(chatHistoryProvider, (_, next) {
+    //   Future.delayed(const Duration(milliseconds: 50), () {
+    //     if (_scrollController.hasClients) {
+    //       _scrollController.animateTo(
+    //         _scrollController.position.maxScrollExtent,
+    //         duration: const Duration(milliseconds: 300),
+    //         curve: Curves.easeOut,
+    //       );
+    //     }
+    //   });
+    // });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lumi'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authRepositoryProvider).signOut(),
-          )
-        ],
-      ),
+      appBar: AppBar(title: const Text('Lumi')),
       body: Column(
         children: [
           Expanded(
-            child: sessionsAsyncValue.when(
-              data: (sessionMap) {
-                if (sessionMap.isEmpty) {
+            child: messagesAsyncValue.when(
+              data: (messages) {
+                if (messages.isEmpty) {
                   return const Center(child: Text("Say hello to Lumi!"));
                 }
-                // Filter sessions to only show today's session
-                final today = DateTime.now();
-                final todayEntries = sessionMap.entries.where((entry) {
-                  final sessionDate = entry.key.startedAt;
-                  return sessionDate.year == today.year &&
-                      sessionDate.month == today.month &&
-                      sessionDate.day == today.day;
-                }).toList();
-
-                if (todayEntries.isEmpty) {
-                  return const Center(child: Text("Say hello to Lumi!"));
-                }
-                // Count total messages to detect when new ones are added
-                final totalMessages = todayEntries.fold<int>(
-                    0, (sum, entry) => sum + entry.value.length);
-
-                // Auto-scroll when new messages are detected
-                if (totalMessages > _previousMessageCount) {
-                  _previousMessageCount = totalMessages;
-                  _scrollToBottom();
-                }
-                // Display sessions grouped by day
                 return ListView.builder(
-                  controller: _scrollController,
+                  controller: _scrollController, // Use the persistent controller
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  itemCount: todayEntries.fold<int>(
-                      0,
-                      (sum, entry) =>
-                          sum + entry.value.length + 1 // +1 for date header
-                      ),
+                  itemCount: messages.length,
+                  reverse: true,
                   itemBuilder: (context, index) {
-                    int currentIndex = 0;
-
-                    for (final entry in todayEntries) {
-                      final session = entry.key;
-                      final messages = entry.value;
-
-                      // Check if this is the date header
-                      if (index == currentIndex) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Center(
-                            child: Text(
-                              _formatSessionDate(session.startedAt),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                          ),
-                        );
-                      }
-                      currentIndex++;
-
-                      // Check if this is one of the message bubbles
-                      final messageIndex = index - currentIndex;
-                      if (messageIndex >= 0 && messageIndex < messages.length) {
-                        return MessageBubble(message: messages[messageIndex]);
-                      }
-
-                      currentIndex += messages.length;
-                    }
-
-                    return const SizedBox.shrink(); // Fallback
+                    return MessageBubble(message: messages[messages.length - 1 -index]);
                   },
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) =>
-                  Center(child: Text('Something went wrong: $err')),
+              error: (err, stack) => Center(child: Text('Error: $err')),
             ),
           ),
           MessageInputBar(
-            controller: messageInputController,
+            controller: _messageInputController, // Use the persistent controller
+            focusNode: _focusNode,
             onSend: () {
-              if (messageInputController.text.trim().isNotEmpty) {
-                // Dismiss keyboard immediately when sending
-                _dismissKeyboard();
-                
-                // Send the message
-                ref
-                    .read(chatControllerProvider.notifier)
-                    .sendMessage(messageInputController.text.trim());
-                messageInputController.clear();
-                
-                // Scroll to bottom to show the new message
-                _scrollToBottom();
+              final text = _messageInputController.text.trim();
+              if (text.isNotEmpty) {
+                ref.read(chatControllerProvider.notifier).sendMessage(text);
+                _messageInputController.clear();
+                _focusNode.unfocus();
               }
             },
           ),
         ],
       ),
     );
-  }
-
-  String _formatSessionDate(DateTime date) {
-    final now = DateTime.now();
-    if (date.year == now.year &&
-        date.month == now.month &&
-        date.day == now.day) {
-      return 'Today';
-    }
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

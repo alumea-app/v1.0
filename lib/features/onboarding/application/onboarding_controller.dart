@@ -120,7 +120,7 @@ class OnboardingController extends _$OnboardingController {
         stage: stage,
         messages: [
           ...state.messages,
-          ChatMessage(text: text, sender: Sender.lumi)
+          ChatMessage(text: text, sender: Sender.lumi, timestamp: null)
         ],
       );
     } catch (e) {

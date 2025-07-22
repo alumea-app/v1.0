@@ -46,12 +46,12 @@ class MessageBubble extends StatelessWidget {
                   ? AppTheme.secondaryLavender
                   : AppTheme.darkerGraySurface,
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(10),
-                topRight: const Radius.circular(10),
+                topLeft: const Radius.circular(6),
+                topRight: const Radius.circular(6),
                 bottomLeft:
-                    isUserMessage ? const Radius.circular(10) : Radius.zero,
+                    isUserMessage ? const Radius.circular(6) : Radius.zero,
                 bottomRight:
-                    isUserMessage ? Radius.zero : const Radius.circular(10),
+                    isUserMessage ? Radius.zero : const Radius.circular(6),
               ),
             ),
             child: Column(

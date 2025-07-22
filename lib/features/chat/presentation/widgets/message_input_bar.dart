@@ -1,6 +1,3 @@
-// lib/features/chat/presentation/widgets/message_input_bar.dart
-// THE UPGRADED VERSION
-
 import 'package:alumea/core/app_theme.dart'; // Make sure you have your theme file
 import 'package:flutter/material.dart';
 
@@ -8,11 +5,13 @@ class MessageInputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool isSending; // <-- 1. ADD THE NEW PROPERTY
   final VoidCallback onSend;
+  final FocusNode? focusNode;
 
   const MessageInputBar({
     super.key, 
     required this.controller, 
     this.isSending = false, // <-- 2. SET A DEFAULT VALUE
+    this.focusNode,
     required this.onSend,
   });
 
@@ -21,7 +20,7 @@ class MessageInputBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.lightGrayBackground,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -37,11 +36,15 @@ class MessageInputBar extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: AppTheme.lightGrayBackground,
+                  color: AppTheme.darkerGraySurface,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: TextField(
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: 5,
+                  minLines: 1,
                   controller: controller,
+                   focusNode: focusNode,
                   // 3. DISABLE THE TEXT FIELD WHILE SENDING
                   enabled: !isSending, 
                   decoration: const InputDecoration(

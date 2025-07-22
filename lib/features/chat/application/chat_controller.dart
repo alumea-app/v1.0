@@ -1,51 +1,45 @@
 import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alumea/features/chat/data/chat_repository.dart';
 import 'package:alumea/features/chat/domain/chat_message.dart';
-import 'package:alumea/features/chat/domain/chat_session.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'chat_controller.g.dart';
 
-// 1. NEW: Create a dedicated StreamProvider for the chat history.
-// This provider will watch the stream from the repository and expose it to the UI.
+// THIS IS NOW THE SINGLE SOURCE OF TRUTH FOR THE UI's DATA
 @riverpod
-Stream<Map<ChatSession, List<ChatMessage>>> chatHistory(Ref ref) {
-  return ref.watch(chatRepositoryProvider).getSessionChatHistoryStream();
+Stream<List<ChatMessage>> chatHistory(Ref ref) {
+  return ref.watch(chatRepositoryProvider).getChatHistoryStream();
 }
 
-// 2. REFACTORED: The controller is now much simpler.
-// It is only responsible for performing actions, not for holding state.
+// This controller is ONLY for actions. It holds no state.
 @riverpod
 class ChatController extends _$ChatController {
   StreamSubscription? _responseSubscription;
 
-  // The build method is now empty as this is an action-only controller.
   @override
   void build() {
-    ref.onDispose(() {
-      _responseSubscription?.cancel();
-    });
+    ref.onDispose(() => _responseSubscription?.cancel());
   }
 
   Future<void> sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
     final chatRepository = ref.read(chatRepositoryProvider);
-    final userMessage = ChatMessage(text: text, sender: Sender.user);
+    final userMessage = ChatMessage(text: text, sender: Sender.user, timestamp: DateTime.now());
 
-    // Save the user's message to history. The UI will update automatically
-    // because it's listening to the chatHistoryProvider stream.
+    // 1. Save the user's message. The UI will update instantly via the stream.
     await chatRepository.saveMessageToHistory(userMessage);
 
-    // Trigger the Gemini extension and listen for the response.
+    // 2. Trigger the Gemini extension.
     final promptDocRef = await chatRepository.createPrompt(text);
+
+    // 3. Listen for the response and save it. The UI will update instantly.
     _responseSubscription?.cancel();
     _responseSubscription =
         chatRepository.getResponseStream(promptDocRef).listen((response) {
       if (response != null && response.isNotEmpty) {
-        final lumiMessage = ChatMessage(text: response, sender: Sender.lumi);
-        // Save Lumi's message. The UI will update automatically.
+        final lumiMessage = ChatMessage(text: response, sender: Sender.lumi, timestamp: DateTime.now());
         chatRepository.saveMessageToHistory(lumiMessage);
         _responseSubscription?.cancel();
       }

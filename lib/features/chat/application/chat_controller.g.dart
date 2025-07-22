@@ -6,12 +6,12 @@ part of 'chat_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$chatHistoryHash() => r'51fb592664e6ca8612e333a4e3d117c93baadfa6';
+String _$chatHistoryHash() => r'9973105e3dc6030e9f768cd391672195116e4989';
 
 /// See also [chatHistory].
 @ProviderFor(chatHistory)
 final chatHistoryProvider =
-    AutoDisposeStreamProvider<Map<ChatSession, List<ChatMessage>>>.internal(
+    AutoDisposeStreamProvider<List<ChatMessage>>.internal(
   chatHistory,
   name: r'chatHistoryProvider',
   debugGetCreateSourceHash:
@@ -22,9 +22,8 @@ final chatHistoryProvider =
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ChatHistoryRef
-    = AutoDisposeStreamProviderRef<Map<ChatSession, List<ChatMessage>>>;
-String _$chatControllerHash() => r'121eebd202932ab3a2c5f6812f6d197348704845';
+typedef ChatHistoryRef = AutoDisposeStreamProviderRef<List<ChatMessage>>;
+String _$chatControllerHash() => r'01f2e8840f7038cfa040888d7c2fc6a37cb051a3';
 
 /// See also [ChatController].
 @ProviderFor(ChatController)
