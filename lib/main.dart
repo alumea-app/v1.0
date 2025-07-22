@@ -48,8 +48,6 @@ class _MyAppState extends ConsumerState<AlumeaApp> {
       debugShowCheckedModeBanner: false,
       routerDelegate: RoutemasterDelegate(
         routesBuilder: (context) {
-          // Use .when for exhaustive state handling (data, loading, error)
-          // This is a more robust pattern.
             if (data != null) {
                getData(ref, data);
                if (userModel != null) {

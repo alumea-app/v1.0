@@ -1,6 +1,7 @@
 import 'package:alumea/features/home/presentation/home_screen.dart';
 import 'package:alumea/features/journal/presentation/journal_screen.dart';
 import 'package:alumea/features/profile/presentation/profile_screen.dart';
+import 'package:alumea/features/settings/presentation/settings_screen_dart';
 import 'package:alumea/features/stats/presentation/stats_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,15 +15,13 @@ class AppScaffold extends ConsumerStatefulWidget {
 }
 
 class _AppScaffoldState extends ConsumerState<AppScaffold> {
-
-   int _selectedIndex = 0;
+  int _selectedIndex = 0;
 
   // A list of the widgets to display for each tab
   static final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(),
     const JournalScreen(),
-    StatsScreen(),
-    const ProfileScreen(),
+    const SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -35,62 +34,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
   Widget build(BuildContext context) {
     // final user = ref.watch(userProvider);
     return Scaffold(
-      appBar: 
-          AppBar(
-        elevation: 0,
-        primary: true,
-        toolbarHeight: MediaQuery.of(context).size.height / 8,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
-        ),
-        // title: GreetingText(userName: user!.name),
-        actions: [
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xff6495ED),
-            ),
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.notifications_none_rounded,
-                size: 22,
-                color: Colors.white,
-              ),
-              padding: EdgeInsets.zero,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xff6495ED),
-              ),
-              child: IconButton(
-                onPressed: () {
-                  Routemaster.of(context).replace('/userProfilePage');
-                },
-                icon: const Icon(
-                  Icons.account_circle,
-                  size: 22,
-                  color: Colors.white,
-                ),
-                padding: EdgeInsets.zero,
-              ),
-            ),
-          )
-        ],
-      ),
-      // The body will now display the widget from our list based on the selected index
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
@@ -104,17 +47,12 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
           BottomNavigationBarItem(
             icon: Icon(Icons.book_outlined),
             activeIcon: Icon(Icons.book),
-            label: 'Journal',
+            label: 'Journey',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_outlined),
-            activeIcon: Icon(Icons.bar_chart),
-            label: 'Stats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
         currentIndex: _selectedIndex,

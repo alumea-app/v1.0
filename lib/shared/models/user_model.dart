@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
 
-class UserModel {
+class UserModel extends Equatable{
   final String uid;
   final String name;
   final String email;
   final DateTime createdAt;
 
-  UserModel({
+  const UserModel({
     required this.uid,
     required this.name,
     required this.email,
@@ -30,4 +31,6 @@ class UserModel {
       createdAt: (map['createdAt'] as Timestamp).toDate(),
     );
   }
+  @override
+  List<Object?> get props => [uid, name, email, createdAt];
 }
