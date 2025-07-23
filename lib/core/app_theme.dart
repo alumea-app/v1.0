@@ -31,12 +31,11 @@ class AppTheme {
     colorScheme: const ColorScheme.light(
       primary: primaryBlue,
       secondary: secondaryLavender,
-      background: lightGrayBackground,
-      surface: Colors.white, // For things like Cards
+      surface: lightGrayBackground,
+      // surface: Colors.white, // For things like Cards
       error: accentCoral,    // Our SOS button color works as a gentle error color
       onPrimary: Colors.white, // Text/icon color on a primary-colored background
       onSecondary: Colors.white,
-      onBackground: textPrimary,
       onSurface: textPrimary,
       onError: Colors.white,
     ),

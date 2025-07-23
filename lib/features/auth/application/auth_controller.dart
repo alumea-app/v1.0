@@ -43,6 +43,7 @@ final authControllerProvider =
 
 class AuthController extends StateNotifier<bool> {
   final AuthRepository _authRepository;
+  // ignore: unused_field
   final Ref _ref;
 
   AuthController({

@@ -35,7 +35,7 @@ class LoginScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -62,7 +62,7 @@ class LoginScreen extends ConsumerWidget {
                       backgroundColor: Theme.of(context)
                           .colorScheme
                           .primary
-                          .withOpacity(0.1),
+                          .withValues(alpha: 0.1),
                       child: Icon(Icons.lock_outline_rounded,
                           size: 40,
                           color: Theme.of(context).colorScheme.primary),

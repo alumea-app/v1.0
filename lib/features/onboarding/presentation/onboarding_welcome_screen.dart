@@ -29,7 +29,8 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                     SvgPicture.asset(
                       'assets/logo.svg',
                       height: 100,
-                      color: Color(0xFF6B728E),
+                      colorFilter:
+                          ColorFilter.mode(Color(0xFF6B728E), BlendMode.srcIn),
                     ),
                     Text(
                       'alumea',
@@ -86,8 +87,8 @@ class _CirclesPainter extends CustomPainter {
       colors: [
         // We'll start with our Secondary Lavender and end with our Primary Blue.
         // I've added a low opacity to both to keep the soft, atmospheric feel.
-        AppTheme.secondaryLavender.withOpacity(0.15),
-        AppTheme.primaryBlue.withOpacity(0.15),
+        AppTheme.secondaryLavender.withValues(alpha: 0.15),
+        AppTheme.primaryBlue.withValues(alpha: 0.15),
       ],
       // `stops` lets you control where the colors transition. `null` gives an even blend.
       stops: [0.0, 1.0],

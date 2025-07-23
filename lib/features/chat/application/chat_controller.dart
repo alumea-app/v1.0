@@ -6,6 +6,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'chat_controller.g.dart';
 
+final isLumiTypingProvider = StateProvider<bool>((ref) => false);
+
 // THIS IS NOW THE SINGLE SOURCE OF TRUTH FOR THE UI's DATA
 @riverpod
 Stream<List<ChatMessage>> chatHistory(Ref ref) {
@@ -16,6 +18,7 @@ Stream<List<ChatMessage>> chatHistory(Ref ref) {
 @riverpod
 class ChatController extends _$ChatController {
   StreamSubscription? _responseSubscription;
+  
 
   @override
   void build() {
@@ -30,6 +33,7 @@ class ChatController extends _$ChatController {
 
     // 1. Save the user's message. The UI will update instantly via the stream.
     await chatRepository.saveMessageToHistory(userMessage);
+    ref.read(isLumiTypingProvider.notifier).state = true;
 
     // 2. Trigger the Gemini extension.
     final promptDocRef = await chatRepository.createPrompt(text);
@@ -39,6 +43,7 @@ class ChatController extends _$ChatController {
     _responseSubscription =
         chatRepository.getResponseStream(promptDocRef).listen((response) {
       if (response != null && response.isNotEmpty) {
+        ref.read(isLumiTypingProvider.notifier).state = false;
         final lumiMessage = ChatMessage(text: response, sender: Sender.lumi, timestamp: DateTime.now());
         chatRepository.saveMessageToHistory(lumiMessage);
         _responseSubscription?.cancel();

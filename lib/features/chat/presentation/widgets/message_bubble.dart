@@ -30,7 +30,7 @@ class MessageBubble extends StatelessWidget {
                       child: SvgPicture.asset(
                     'assets/logo.svg',
                     height: 22,
-                    color: Colors.white,
+                    colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   )),
                 ),
               ),

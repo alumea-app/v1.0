@@ -1,11 +1,8 @@
 import 'package:alumea/features/home/presentation/home_screen.dart';
 import 'package:alumea/features/journal/presentation/journal_screen.dart';
-import 'package:alumea/features/profile/presentation/profile_screen.dart';
 import 'package:alumea/features/settings/presentation/settings_screen_dart';
-import 'package:alumea/features/stats/presentation/stats_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:routemaster/routemaster.dart';
 
 class AppScaffold extends ConsumerStatefulWidget {
   const AppScaffold({super.key});

@@ -2,6 +2,7 @@ import 'package:alumea/features/auth/presentation/login_screen.dart';
 import 'package:alumea/features/chat/presentation/chat_screen.dart';
 import 'package:alumea/features/journal/presentation/journal_screen.dart';
 import 'package:alumea/features/navigation/presentation/app_scaffold.dart';
+import 'package:alumea/features/notifications/presentation/notifications_screen.dart';
 import 'package:alumea/features/onboarding/presentation/onboarding_chat_screen.dart';
 import 'package:alumea/features/onboarding/presentation/onboarding_welcome_screen.dart';
 import 'package:alumea/features/settings/presentation/settings_screen_dart';
@@ -24,13 +25,16 @@ final loggedInRoutes = RouteMap(
     // The root is now our AppScaffold with the BottomNavigationBar
     '/': (_) => const MaterialPage(child: AppScaffold()),
     
-    // We add a specific route for the chat screen
+    // Rooute for the chat screen
     '/chat': (_) => MaterialPage(child: ChatScreen()),
     
-    // And a route for the journal screen
+    // Route for the journal screen
     '/journal': (_) => const MaterialPage(child: JournalScreen()),
     
-    // And a route for the settings screen
+    // Route for the settings screen
     '/settings': (_) => const MaterialPage(child: SettingsScreen()),
+
+    // Route for the settings screen
+    '/notifications': (_) => const MaterialPage(child: NotificationsScreen()),
   },
 );

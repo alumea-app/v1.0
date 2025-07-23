@@ -112,7 +112,7 @@ class HomeScreen extends ConsumerWidget {
                     }
                     return Card(
                       elevation: 0,
-                      color: AppTheme.primaryBlue.withOpacity(0.05),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.05),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -157,7 +157,7 @@ class _ActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isEmphasized ? AppTheme.accentCoral : AppTheme.primaryBlue;
     final bgColor =
-        isEmphasized ? AppTheme.accentCoral.withOpacity(0.1) : Colors.white;
+        isEmphasized ? AppTheme.accentCoral.withValues(alpha: 0.1) : Colors.white;
 
     return Card(
       elevation: 0,
@@ -182,7 +182,7 @@ class _ActionCard extends StatelessWidget {
                   style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16, color: color)),
               const SizedBox(height: 4),
-              Text(subtitle, style: TextStyle(color: color.withOpacity(0.8))),
+              Text(subtitle, style: TextStyle(color: color.withValues(alpha: 0.8))),
             ],
           ),
         ),

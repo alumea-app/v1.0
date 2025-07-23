@@ -23,7 +23,7 @@ final chatHistoryProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ChatHistoryRef = AutoDisposeStreamProviderRef<List<ChatMessage>>;
-String _$chatControllerHash() => r'01f2e8840f7038cfa040888d7c2fc6a37cb051a3';
+String _$chatControllerHash() => r'00c31dee75f109c3dd56bd23eac2d939ba126f70';
 
 /// See also [ChatController].
 @ProviderFor(ChatController)

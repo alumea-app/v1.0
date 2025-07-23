@@ -1,6 +1,7 @@
 import 'package:alumea/features/chat/application/chat_controller.dart';
 import 'package:alumea/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:alumea/features/chat/presentation/widgets/message_input_bar.dart';
+import 'package:alumea/features/chat/presentation/widgets/typing_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -67,6 +68,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // We watch our single source of truth for the message list.
     final messagesAsyncValue = ref.watch(chatHistoryProvider);
+     final isLumiTyping = ref.watch(isLumiTypingProvider);
 
     // Listen to the provider to auto-scroll when new messages arrive.
     // ref.listen(chatHistoryProvider, (_, next) {
@@ -105,8 +107,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               error: (err, stack) => Center(child: Text('Error: $err')),
             ),
           ),
+           if (isLumiTyping) const TypingIndicator(),
           MessageInputBar(
-            controller: _messageInputController, // Use the persistent controller
+            controller: _messageInputController,
             focusNode: _focusNode,
             onSend: () {
               final text = _messageInputController.text.trim();
