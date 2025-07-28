@@ -2,65 +2,67 @@ import 'package:alumea/features/auth/application/auth_controller.dart';
 import 'package:alumea/firebase_options.dart';
 import 'package:alumea/routes.dart';
 import 'package:alumea/core/app_theme.dart';
-import 'package:alumea/shared/models/user_model.dart';
 import 'package:alumea/shared/widgets/error_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+   await FirebaseAppCheck.instance.activate(
+    // Set androidProvider to `AndroidProvider.debug`
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.debug,
+  );
   runApp(
     const ProviderScope(child: AlumeaApp()),
   );
 }
 
-class AlumeaApp extends ConsumerStatefulWidget {
+class AlumeaApp extends ConsumerWidget {
   const AlumeaApp({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _MyAppState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateChangeProvider);
 
-class _MyAppState extends ConsumerState<AlumeaApp> {
-  UserModel? userModel;
-  
-   void getData(WidgetRef ref, User data) async {
-    userModel = await ref
-        .watch(authControllerProvider.notifier)
-        .getUserData(data.uid)
-        .first;
-    ref.read(userProvider.notifier).update((state) => userModel);
-    setState(() {});
-  }
-@override
-  Widget build(BuildContext context) {
-
-    return ref.watch(authStateChangeProvider).when(
-     data: (data) => MaterialApp.router(
+    return MaterialApp.router(
       title: 'Alumea',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       routerDelegate: RoutemasterDelegate(
         routesBuilder: (context) {
-            if (data != null) {
-               getData(ref, data);
-               if (userModel != null) {
-                    return loggedInRoutes;
-            }
-            }
-                return loggedOutRoutes; // User is logged out
+          return authState.when(
+            data: (user) {
+              if (user != null) {
+                return loggedInRoutes;
+              } else {
+                return loggedOutRoutes;
+              }
             },
+            loading: () => RouteMap(
+              routes: {
+                '/': (_) => const MaterialPage(
+                  child: Scaffold(body: Center(child: CircularProgressIndicator())),
+                ),
+              },
+            ),
+            error: (error, stack) => RouteMap(
+              routes: {
+                '/': (_) => MaterialPage(
+                  child: ErrorScreen(error: error),
+                ),
+              },
+            ),
+          );
+        },
       ),
       routeInformationParser: const RoutemasterParser(),
-    ),
-    error: (error, stackTrace) => ErrorScreen(error: error.toString()),
-    loading: () => const CircularProgressIndicator(),
     );
   }
 }

@@ -48,7 +48,6 @@ class HomeScreen extends ConsumerWidget {
               error: (e, s) => const Text('Hello.'),
             ),
             const SizedBox(height: 40),
-
             GestureDetector(
               onTap: () => Routemaster.of(context).push('/chat'),
               child: AbsorbPointer(
@@ -75,7 +74,6 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-
             Row(
               children: [
                 Expanded(
@@ -156,8 +154,9 @@ class _ActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isEmphasized ? AppTheme.accentCoral : AppTheme.primaryBlue;
-    final bgColor =
-        isEmphasized ? AppTheme.accentCoral.withValues(alpha: 0.1) : Colors.white;
+    final bgColor = isEmphasized
+        ? AppTheme.accentCoral.withValues(alpha: 0.1)
+        : Colors.white;
 
     return Card(
       elevation: 0,
@@ -182,7 +181,8 @@ class _ActionCard extends StatelessWidget {
                   style: TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16, color: color)),
               const SizedBox(height: 4),
-              Text(subtitle, style: TextStyle(color: color.withValues(alpha: 0.8))),
+              Text(subtitle,
+                  style: TextStyle(color: color.withValues(alpha: 0.8))),
             ],
           ),
         ),

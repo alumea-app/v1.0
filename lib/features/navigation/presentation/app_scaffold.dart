@@ -1,6 +1,6 @@
 import 'package:alumea/features/home/presentation/home_screen.dart';
-import 'package:alumea/features/journal/presentation/journal_screen.dart';
-import 'package:alumea/features/settings/presentation/settings_screen_dart';
+import 'package:alumea/features/journey/presentation/journey_screen.dart';
+import 'package:alumea/features/settings/presentation/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,17 +11,17 @@ class AppScaffold extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _AppScaffoldState();
 }
 
-class _AppScaffoldState extends ConsumerState<AppScaffold> {
+class _AppScaffoldState extends ConsumerState<AppScaffold>{
   int _selectedIndex = 0;
 
-  // A list of the widgets to display for each tab
+   // A list of the widgets to display for each tab
   static final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(),
-    const JournalScreen(),
+    const JourneyScreen(),
     const SettingsScreen(),
   ];
 
-  void _onItemTapped(int index) {
+   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
@@ -29,7 +29,6 @@ class _AppScaffoldState extends ConsumerState<AppScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    // final user = ref.watch(userProvider);
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

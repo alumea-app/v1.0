@@ -1,11 +1,16 @@
 import 'package:alumea/features/auth/presentation/login_screen.dart';
 import 'package:alumea/features/chat/presentation/chat_screen.dart';
-import 'package:alumea/features/journal/presentation/journal_screen.dart';
-import 'package:alumea/features/navigation/presentation/app_scaffold.dart';
+import 'package:alumea/features/journey/presentation/journey_screen.dart';
+import 'package:alumea/features/mood/presentation/check_in_screen.dart';
 import 'package:alumea/features/notifications/presentation/notifications_screen.dart';
 import 'package:alumea/features/onboarding/presentation/onboarding_chat_screen.dart';
 import 'package:alumea/features/onboarding/presentation/onboarding_welcome_screen.dart';
-import 'package:alumea/features/settings/presentation/settings_screen_dart';
+import 'package:alumea/features/security/presentation/app_lock_wrapper.dart';
+import 'package:alumea/features/security/presentation/set_passcode_screen.dart';
+import 'package:alumea/features/settings/presentation/account_screen.dart';
+import 'package:alumea/features/settings/presentation/privacy_policy_screen.dart';
+import 'package:alumea/features/settings/presentation/settings_screen.dart';
+import 'package:alumea/features/settings/presentation/terms_and_conditions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
@@ -13,7 +18,8 @@ import 'package:routemaster/routemaster.dart';
 final loggedOutRoutes = RouteMap(
   routes: {
     '/': (_) => const MaterialPage(child: OnboardingWelcomeScreen()),
-    '/onboarding-chat': (_) => const MaterialPage(child: OnboardingChatScreen()),
+    '/onboarding-chat': (_) =>
+        const MaterialPage(child: OnboardingChatScreen()),
     '/login': (_) => const MaterialPage(child: LoginScreen()),
   },
 );
@@ -22,19 +28,35 @@ final loggedOutRoutes = RouteMap(
 final loggedInRoutes = RouteMap(
   onUnknownRoute: (_) => const Redirect('/'),
   routes: {
-    // The root is now our AppScaffold with the BottomNavigationBar
-    '/': (_) => const MaterialPage(child: AppScaffold()),
-    
+    // The root is the AppLockWrapper
+    '/': (_) => const MaterialPage(child: AppLockWrapper()),
+
     // Rooute for the chat screen
     '/chat': (_) => MaterialPage(child: ChatScreen()),
-    
+
     // Route for the journal screen
-    '/journal': (_) => const MaterialPage(child: JournalScreen()),
-    
+    '/journal': (_) => MaterialPage(child: JourneyScreen()),
+
     // Route for the settings screen
     '/settings': (_) => const MaterialPage(child: SettingsScreen()),
 
     // Route for the settings screen
     '/notifications': (_) => const MaterialPage(child: NotificationsScreen()),
+
+    // Route for the account screen
+    '/account': (_) => const MaterialPage(child: AccountScreen()),
+
+    // Route for the terms & conditions screen
+    '/terms-and-conditions': (_) =>
+        const MaterialPage(child: TermsAndConditionsScreen()),
+
+    // Route for the privacy policy screen
+    '/privacy-policy': (_) => const MaterialPage(child: PrivacyPolicyScreen()),
+
+    // Route for the applock screen
+    '/set-passcode': (_) => const MaterialPage(child: SetPasscodeScreen()),
+
+    //Route for mood entry screen
+    '/check-in': (_) => const MaterialPage(child: CheckInScreen()),
   },
 );
