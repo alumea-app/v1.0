@@ -4,8 +4,8 @@ import 'package:alumea/features/chat/presentation/widgets/message_input_bar.dart
 import 'package:alumea/features/chat/presentation/widgets/typing_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:routemaster/routemaster.dart';
 
-// The screen MUST be a ConsumerStatefulWidget to manage controllers.
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
 
@@ -22,30 +22,48 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _handleProactiveMessage();
+      }
+    });
     // Controllers are initialized ONCE when the widget is first created.
     _messageInputController = TextEditingController();
     _scrollController = ScrollController();
     _focusNode.addListener(_onFocusChange);
+    
   }
+
 
   @override
   void dispose() {
     // Controllers are disposed of when the widget is destroyed to prevent memory leaks.
     _messageInputController.dispose();
     _scrollController.dispose();
-     _focusNode.removeListener(_onFocusChange);
+    _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
     super.dispose();
   }
 
-   void _onFocusChange() {
+  void _handleProactiveMessage() {
+    // Get the source from the route's query parameters
+    final source = Routemaster.of(
+      context,
+    ).currentRoute.queryParameters['source'];
+    if (source == 'checkin') {
+      // If we came from a check-in, call our new controller method.
+      ref.read(chatControllerProvider.notifier).addProactiveLumiMessage();
+    }
+  }
+
+  void _onFocusChange() {
     if (_focusNode.hasFocus) {
       // If the text field gains focus, scroll to the bottom
       _scrollToBottom();
     }
   }
 
-   void _scrollToBottom() {
+  void _scrollToBottom() {
     // A short delay ensures the keyboard is up before we scroll
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_scrollController.hasClients) {
@@ -61,14 +79,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     ref.listen(chatHistoryProvider, (previous, next) {
-      if (next.hasValue && (previous?.value?.length ?? 0) < next.value!.length) {
+      if (next.hasValue &&
+          (previous?.value?.length ?? 0) < next.value!.length) {
         _scrollToBottom(); // Use our new helper method
       }
     });
 
     // We watch our single source of truth for the message list.
     final messagesAsyncValue = ref.watch(chatHistoryProvider);
-     final isLumiTyping = ref.watch(isLumiTypingProvider);
+    final isLumiTyping = ref.watch(isLumiTypingProvider);
 
     // Listen to the provider to auto-scroll when new messages arrive.
     // ref.listen(chatHistoryProvider, (_, next) {
@@ -94,12 +113,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   return const Center(child: Text("Say hello to Lumi!"));
                 }
                 return ListView.builder(
-                  controller: _scrollController, // Use the persistent controller
+                  controller:
+                      _scrollController, // Use the persistent controller
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   itemCount: messages.length,
                   reverse: true,
                   itemBuilder: (context, index) {
-                    return MessageBubble(message: messages[messages.length - 1 -index]);
+                    return MessageBubble(
+                      message: messages[messages.length - 1 - index],
+                    );
                   },
                 );
               },
@@ -107,7 +129,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               error: (err, stack) => Center(child: Text('Error: $err')),
             ),
           ),
-           if (isLumiTyping) const TypingIndicator(),
+          if (isLumiTyping) const TypingIndicator(),
           MessageInputBar(
             controller: _messageInputController,
             focusNode: _focusNode,

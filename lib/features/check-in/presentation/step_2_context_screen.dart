@@ -1,5 +1,5 @@
 import 'package:alumea/core/app_theme.dart';
-import 'package:alumea/features/mood/presentation/check_in_screen.dart';
+import 'package:alumea/features/check-in/presentation/check_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math';
@@ -110,8 +110,8 @@ class _Step2ContextScreenState extends ConsumerState<Step2ContextScreen> {
               _InvitationTextField(
                 controller: noteController,
                 onChanged: (text) {
-                   ref.read(checkInProvider.notifier).state =
-                      ref.read(checkInProvider).copyWith(note: text);
+                   ref.read(checkInControllerProvider.notifier).state =
+                      ref.read(checkInControllerProvider).copyWith(note: text);
                 }
               ),
               const SizedBox(height: 20),
@@ -136,19 +136,19 @@ class _PebbleChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedTags = ref.watch(checkInProvider.select((s) => s.contextTags));
+    final selectedTags = ref.watch(checkInControllerProvider.select((s) => s.contextTags));
     final isSelected = selectedTags.contains(tag);
 
     return GestureDetector(
       onTap: () {
-        final currentTags = List<String>.from(ref.read(checkInProvider).contextTags);
+        final currentTags = List<String>.from(ref.read(checkInControllerProvider).contextTags);
         if (!isSelected) {
           currentTags.add(tag);
         } else {
           currentTags.remove(tag);
         }
-        ref.read(checkInProvider.notifier).state =
-            ref.read(checkInProvider).copyWith(contextTags: currentTags);
+        ref.read(checkInControllerProvider.notifier).state =
+            ref.read(checkInControllerProvider).copyWith(contextTags: currentTags);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

@@ -1,7 +1,8 @@
 import 'package:alumea/features/auth/presentation/login_screen.dart';
 import 'package:alumea/features/chat/presentation/chat_screen.dart';
+import 'package:alumea/features/check-in/presentation/reflection_screen.dart';
 import 'package:alumea/features/journey/presentation/journey_screen.dart';
-import 'package:alumea/features/mood/presentation/check_in_screen.dart';
+import 'package:alumea/features/check-in/presentation/check_in_screen.dart';
 import 'package:alumea/features/notifications/presentation/notifications_screen.dart';
 import 'package:alumea/features/onboarding/presentation/onboarding_chat_screen.dart';
 import 'package:alumea/features/onboarding/presentation/onboarding_welcome_screen.dart';
@@ -58,5 +59,13 @@ final loggedInRoutes = RouteMap(
 
     //Route for mood entry screen
     '/check-in': (_) => const MaterialPage(child: CheckInScreen()),
+
+    //Route for reflection screen
+    '/check-in/reflection': (routeData) => MaterialPage(
+  child: ReflectionScreen(
+    // We get the mood rating from the query parameters passed during navigation
+    moodRating: int.tryParse(routeData.queryParameters['mood'] ?? '3') ?? 3,
+  ),
+),
   },
 );

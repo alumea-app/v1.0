@@ -18,10 +18,11 @@ Stream<List<ChatMessage>> chatHistory(Ref ref) {
 @riverpod
 class ChatController extends _$ChatController {
   StreamSubscription? _responseSubscription;
-  
+    // A unique session ID for the AI conversation.
+  final String _sessionId = 'session-${DateTime.now().millisecondsSinceEpoch}';
 
   @override
-  void build() {
+  FutureOr<void> build() {
     ref.onDispose(() => _responseSubscription?.cancel());
   }
 
@@ -49,5 +50,21 @@ class ChatController extends _$ChatController {
         _responseSubscription?.cancel();
       }
     });
+  }
+
+   Future<void> addProactiveLumiMessage() async {
+    final chatRepository = ref.read(chatRepositoryProvider);
+    final proactiveMessage = ChatMessage(
+      text: "I see you're having a difficult day. If you'd like to talk about what's on your mind, I'm here to listen.",
+      sender: Sender.lumi,
+    );
+    
+    // Check if this exact message is already the last message to prevent duplicates.
+    final history = ref.read(chatHistoryProvider).asData?.value ?? [];
+    if (history.isEmpty || history.last.text != proactiveMessage.text) {
+        // Save this special message to Firestore. The UI will update automatically
+        // because it is watching the `chatHistoryProvider` stream.
+        await chatRepository.saveMessageToHistory(proactiveMessage);
+    }
   }
 }

@@ -13,14 +13,14 @@ String _$securityControllerHash() =>
 @ProviderFor(SecurityController)
 final securityControllerProvider =
     AutoDisposeAsyncNotifierProvider<SecurityController, AppLockState>.internal(
-  SecurityController.new,
-  name: r'securityControllerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$securityControllerHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      SecurityController.new,
+      name: r'securityControllerProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$securityControllerHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SecurityController = AutoDisposeAsyncNotifier<AppLockState>;
 // ignore_for_file: type=lint

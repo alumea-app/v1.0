@@ -1,5 +1,5 @@
 import 'package:alumea/core/app_theme.dart';
-import 'package:alumea/features/mood/presentation/check_in_screen.dart';
+import 'package:alumea/features/check-in/presentation/check_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,8 +37,8 @@ class _Step1MoodScreenState extends ConsumerState<Step1MoodScreen> {
 
   void _onDragEnd(DragEndDetails details) {
     // When drag ends, save the state and move to the next page
-    ref.read(checkInProvider.notifier).state =
-        ref.read(checkInProvider).copyWith(moodRating: _currentMood);
+    ref.read(checkInControllerProvider.notifier).state =
+        ref.read(checkInControllerProvider).copyWith(moodRating: _currentMood);
     widget.onNext();
   }
 

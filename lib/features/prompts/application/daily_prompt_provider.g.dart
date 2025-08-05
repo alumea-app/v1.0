@@ -13,8 +13,9 @@ String _$dailyPromptHash() => r'50491c96ab126e13269828b6561394c970db030b';
 final dailyPromptProvider = AutoDisposeFutureProvider<PromptModel?>.internal(
   dailyPrompt,
   name: r'dailyPromptProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$dailyPromptHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$dailyPromptHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
