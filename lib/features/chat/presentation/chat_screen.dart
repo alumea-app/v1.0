@@ -2,6 +2,7 @@ import 'package:alumea/features/chat/application/chat_controller.dart';
 import 'package:alumea/features/chat/presentation/widgets/message_bubble.dart';
 import 'package:alumea/features/chat/presentation/widgets/message_input_bar.dart';
 import 'package:alumea/features/chat/presentation/widgets/typing_indicator.dart';
+import 'package:alumea/features/chat/presentation/widgets/date_separator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
@@ -14,7 +15,6 @@ class ChatScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
-  // Controllers are defined here, outside the build method.
   late final TextEditingController _messageInputController;
   late final ScrollController _scrollController;
   final FocusNode _focusNode = FocusNode();
@@ -27,17 +27,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _handleProactiveMessage();
       }
     });
-    // Controllers are initialized ONCE when the widget is first created.
     _messageInputController = TextEditingController();
     _scrollController = ScrollController();
     _focusNode.addListener(_onFocusChange);
-    
   }
-
 
   @override
   void dispose() {
-    // Controllers are disposed of when the widget is destroyed to prevent memory leaks.
     _messageInputController.dispose();
     _scrollController.dispose();
     _focusNode.removeListener(_onFocusChange);
@@ -46,25 +42,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   void _handleProactiveMessage() {
-    // Get the source from the route's query parameters
     final source = Routemaster.of(
       context,
     ).currentRoute.queryParameters['source'];
     if (source == 'checkin') {
-      // If we came from a check-in, call our new controller method.
       ref.read(chatControllerProvider.notifier).addProactiveLumiMessage();
     }
   }
 
   void _onFocusChange() {
     if (_focusNode.hasFocus) {
-      // If the text field gains focus, scroll to the bottom
       _scrollToBottom();
     }
   }
 
   void _scrollToBottom() {
-    // A short delay ensures the keyboard is up before we scroll
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -81,26 +73,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ref.listen(chatHistoryProvider, (previous, next) {
       if (next.hasValue &&
           (previous?.value?.length ?? 0) < next.value!.length) {
-        _scrollToBottom(); // Use our new helper method
+        _scrollToBottom();
       }
     });
 
-    // We watch our single source of truth for the message list.
     final messagesAsyncValue = ref.watch(chatHistoryProvider);
     final isLumiTyping = ref.watch(isLumiTypingProvider);
-
-    // Listen to the provider to auto-scroll when new messages arrive.
-    // ref.listen(chatHistoryProvider, (_, next) {
-    //   Future.delayed(const Duration(milliseconds: 50), () {
-    //     if (_scrollController.hasClients) {
-    //       _scrollController.animateTo(
-    //         _scrollController.position.maxScrollExtent,
-    //         duration: const Duration(milliseconds: 300),
-    //         curve: Curves.easeOut,
-    //       );
-    //     }
-    //   });
-    // });
 
     return Scaffold(
       appBar: AppBar(title: const Text('Lumi')),
@@ -112,16 +90,40 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 if (messages.isEmpty) {
                   return const Center(child: Text("Say hello to Lumi!"));
                 }
+
+                // Build a list with date separators
+                final List<Widget> chatItems = [];
+                DateTime? lastDate;
+
+                // Messages are reversed for ListView (newest at bottom)
+                for (int i = 0; i < messages.length; i++) {
+                  final msg = messages[i];
+                  final msgDate = msg.timestamp ?? DateTime.now();
+
+                  final isNewDay =
+                      lastDate == null ||
+                      msgDate.year != lastDate.year ||
+                      msgDate.month != lastDate.month ||
+                      msgDate.day != lastDate.day;
+
+                  if (isNewDay) {
+                    chatItems.add(DateSeparator(date: msgDate));
+                  }
+
+                  chatItems.add(MessageBubble(message: msg));
+                  lastDate = msgDate;
+                }
+
+                // Reverse for ListView.builder with reverse: true
+                final reversedItems = chatItems.reversed.toList();
+
                 return ListView.builder(
-                  controller:
-                      _scrollController, // Use the persistent controller
+                  controller: _scrollController,
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  itemCount: messages.length,
+                  itemCount: reversedItems.length,
                   reverse: true,
                   itemBuilder: (context, index) {
-                    return MessageBubble(
-                      message: messages[messages.length - 1 - index],
-                    );
+                    return reversedItems[index];
                   },
                 );
               },
