@@ -15,7 +15,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
    await FirebaseAppCheck.instance.activate(
-    // Set androidProvider to `AndroidProvider.debug`
     androidProvider: AndroidProvider.debug,
     appleProvider: AppleProvider.debug,
   );

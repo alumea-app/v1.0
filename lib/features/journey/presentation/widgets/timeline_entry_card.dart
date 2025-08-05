@@ -10,12 +10,12 @@ class TimelineEntry extends StatelessWidget {
   final bool isLeftAligned;
 
   const TimelineEntry({
-    Key? key,
+    super.key,
     required this.entry,
     this.isFirst = false,
     this.isLast = false,
     this.isLeftAligned = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class AchievementBanner extends StatelessWidget {
   final JourneyEntry entry;
-  const AchievementBanner({Key? key, required this.entry}) : super(key: key);
+  const AchievementBanner({super.key, required this.entry});
 
   @override
   Widget build(BuildContext context) {

@@ -1,93 +1,106 @@
+import 'package:alumea/core/app_theme.dart';
 import 'package:alumea/features/mood/presentation/check_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Step1MoodScreen extends ConsumerWidget {
+class Step1MoodScreen extends ConsumerStatefulWidget {
   final VoidCallback onNext;
-  const Step1MoodScreen({Key? key, required this.onNext}) : super(key: key);
+  const Step1MoodScreen({super.key, required this.onNext});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            "How are you feeling right now?",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 40),
-          _MoodButton(
-            label: 'Great',
-            emoji: '😁',
-            onPressed: () {
-              ref.read(checkInProvider.notifier).state =
-                  ref.read(checkInProvider).copyWith(moodRating: 5); // Assuming copyWith exists
-              onNext();
-            },
-          ),
-          _MoodButton(label: 'Good', emoji: '🙂', onPressed: () {
-             ref.read(checkInProvider.notifier).state =
-                  ref.read(checkInProvider).copyWith(moodRating: 4);
-              onNext();
-          }),
-          _MoodButton(label: 'Okay', emoji: '😐', onPressed: () {
-             ref.read(checkInProvider.notifier).state =
-                  ref.read(checkInProvider).copyWith(moodRating: 3);
-              onNext();
-          }),
-          _MoodButton(label: 'Bad', emoji: '😟', onPressed: () {
-             ref.read(checkInProvider.notifier).state =
-                  ref.read(checkInProvider).copyWith(moodRating: 2);
-              onNext();
-          }),
-           _MoodButton(label: 'Awful', emoji: '😭', onPressed: () {
-             ref.read(checkInProvider.notifier).state =
-                  ref.read(checkInProvider).copyWith(moodRating: 1);
-              onNext();
-          }),
-        ],
-      ),
-    );
-  }
+  _Step1MoodScreenState createState() => _Step1MoodScreenState();
 }
 
-// Reusable button widget for this screen
-class _MoodButton extends StatelessWidget {
-  final String label;
-  final String emoji;
-  final VoidCallback onPressed;
-  
-  const _MoodButton({required this.label, required this.emoji, required this.onPressed});
+class _Step1MoodScreenState extends ConsumerState<Step1MoodScreen> {
+  // A value from -1.0 (bottom) to 1.0 (top)
+  double _dragValue = 0.0; 
+  int _currentMood = 3; // 1-5, starts at "Okay"
+
+  // Maps mood rating to its properties
+  final Map<int, dynamic> _moodMap = {
+    5: {'label': 'Great', 'emoji': '😁', 'color': AppTheme.secondaryLavender},
+    4: {'label': 'Good', 'emoji': '🙂', 'color': AppTheme.accentGreen},
+    3: {'label': 'Okay', 'emoji': '😐', 'color': AppTheme.primaryBlue},
+    2: {'label': 'Bad', 'emoji': '😟', 'color': Colors.grey},
+    1: {'label': 'Awful', 'emoji': '😭', 'color': AppTheme.textSecondary},
+  };
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    setState(() {
+      // Update drag value based on vertical movement, clamped between -1 and 1
+      _dragValue = (_dragValue - details.delta.dy / 100).clamp(-1.0, 1.0);
+      
+      // Convert drag value to a mood rating from 1 to 5
+      _currentMood = (2 * _dragValue + 3).round().clamp(1, 5);
+    });
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    // When drag ends, save the state and move to the next page
+    ref.read(checkInProvider.notifier).state =
+        ref.read(checkInProvider).copyWith(moodRating: _currentMood);
+    widget.onNext();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.all(16),
+    final moodData = _moodMap[_currentMood]!;
+    final sphereSize = 150 + (_dragValue * 50);
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "How are you feeling right now?",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 24)),
-            const SizedBox(width: 16),
-            Text(label, style: const TextStyle(fontSize: 18)),
-          ],
+        const SizedBox(height: 60),
+        Text(
+          moodData['emoji'],
+          style: TextStyle(fontSize: 40 + (_dragValue * 10)),
         ),
-      ),
+        const SizedBox(height: 10),
+        Text(
+          moodData['label'],
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: moodData['color'],
+          ),
+        ),
+        const Spacer(),
+        GestureDetector(
+          onVerticalDragUpdate: _onDragUpdate,
+          onVerticalDragEnd: _onDragEnd,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 100),
+            width: sphereSize,
+            height: sphereSize,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [moodData['color'].withOpacity(0.5), moodData['color']],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: moodData['color'].withOpacity(0.3),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                )
+              ],
+            ),
+          ),
+        ),
+        const Spacer(),
+        const Text(
+          'Drag the sphere up or down',
+          style: TextStyle(color: Colors.grey),
+        ),
+        const SizedBox(height: 40),
+      ],
     );
   }
 }
-
-// Add copyWith to your CheckInModel in `check_in_model.dart` for this to work
-// extension CheckInModelX on CheckInModel {
-//   CheckInModel copyWith({int? moodRating, List<String>? contextTags, String? note}) {
-//     return CheckInModel(moodRating: moodRating ?? this.moodRating, ...);
-//   }
-// }

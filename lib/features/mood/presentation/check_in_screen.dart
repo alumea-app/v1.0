@@ -5,13 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:routemaster/routemaster.dart';
 
-// A simple StateProvider to hold our in-progress check-in data.
 final checkInProvider = StateProvider.autoDispose<CheckInModel>((ref) {
   return CheckInModel(moodRating: 0, contextTags: [], timestamp: DateTime.now());
 });
 
 class CheckInScreen extends ConsumerStatefulWidget {
-  const CheckInScreen({Key? key}) : super(key: key);
+  const CheckInScreen({super.key});
   @override
   _CheckInScreenState createState() => _CheckInScreenState();
 }

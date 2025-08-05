@@ -1,11 +1,9 @@
-// lib/features/journey/presentation/journey_screen.dart
 import 'package:alumea/features/journey/domain/journey_entry.dart';
-import 'package:alumea/features/journey/presentation/widgets/achievement_banner.dart';
 import 'package:alumea/features/journey/presentation/widgets/timeline_entry_card.dart';
 import 'package:flutter/material.dart';
 
 class JourneyScreen extends StatelessWidget {
-  const JourneyScreen({Key? key}) : super(key: key);
+  const JourneyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

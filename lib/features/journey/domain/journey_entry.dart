@@ -1,4 +1,3 @@
-// lib/features/journey/domain/journey_entry.dart
 import 'package:flutter/material.dart';
 
 enum EntryType { checkIn, chat, tool, achievement, dateSeparator }
