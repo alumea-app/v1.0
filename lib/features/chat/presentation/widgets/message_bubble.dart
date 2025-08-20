@@ -14,9 +14,10 @@ class MessageBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
-        mainAxisAlignment:
-            isUserMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: isUserMessage
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isUserMessage) ...[
             Padding(
@@ -27,11 +28,15 @@ class MessageBubble extends StatelessWidget {
                   height: 30,
                   width: 30,
                   child: CircleAvatar(
-                      child: SvgPicture.asset(
-                    'assets/logo.svg',
-                    height: 22,
-                    colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                  )),
+                    child: SvgPicture.asset(
+                      'assets/logo.svg',
+                      height: 22,
+                      colorFilter: ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -48,10 +53,12 @@ class MessageBubble extends StatelessWidget {
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(6),
                 topRight: const Radius.circular(6),
-                bottomLeft:
-                    isUserMessage ? const Radius.circular(6) : Radius.zero,
-                bottomRight:
-                    isUserMessage ? Radius.zero : const Radius.circular(6),
+                bottomLeft: isUserMessage
+                    ? const Radius.circular(6)
+                    : Radius.zero,
+                bottomRight: isUserMessage
+                    ? Radius.zero
+                    : const Radius.circular(6),
               ),
             ),
             child: Column(
@@ -61,8 +68,9 @@ class MessageBubble extends StatelessWidget {
                   child: Text(
                     message.text,
                     style: TextStyle(
-                      color:
-                          isUserMessage ? Colors.white : AppTheme.textPrimary,
+                      color: isUserMessage
+                          ? Colors.white
+                          : AppTheme.textPrimary,
                     ),
                   ),
                 ),

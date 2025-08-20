@@ -1,5 +1,9 @@
 import 'package:alumea/core/app_theme.dart';
 import 'package:alumea/features/auth/application/auth_controller.dart';
+import 'package:alumea/features/check-in/data/check_in_repository.dart';
+import 'package:alumea/features/home/presentation/widgets/blue_dot_widget.dart';
+import 'package:alumea/features/home/presentation/widgets/for_you_card.dart';
+import 'package:alumea/features/home/presentation/widgets/helper_cards.dart';
 import 'package:alumea/features/prompts/application/daily_prompt_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +22,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userDataAsync = ref.watch(currentUserDataProvider);
+    final hasCheckedInTodayAsync = ref.watch(hasCheckedInTodayProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -34,12 +39,12 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     TextSpan(
                       text: user!.name,
-                      style:
-                          Theme.of(context).textTheme.headlineSmall!.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primary, // Change this to your desired color
-                              ),
+                      style: Theme.of(context).textTheme.headlineSmall!
+                          .copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary, // Change this to your desired color
+                          ),
                     ),
                   ],
                 ),
@@ -73,25 +78,53 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            Row(
+            const SizedBox(height: 40),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _ActionCard(
-                    title: 'Daily Check-in',
-                    subtitle: 'How are you feeling?',
-                    icon: Icons.calendar_today_outlined,
-                    onTap: () => Routemaster.of(context).push('/check-in'),
-                  ),
+                const Text(
+                  'For You',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _ActionCard(
-                    title: 'SOS',
-                    subtitle: 'Need help now?',
-                    icon: Icons.favorite_border_outlined,
-                    onTap: () => Routemaster.of(context).push('/sos'),
-                    isEmphasized: true,
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 150, // Give the scrolling list a fixed height
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      // These are our placeholder recommendations
+                      ForYouCard(
+                        title: 'Daily Check-in',
+                        subtitle: 'How are you feeling?',
+                        icon: Icons.calendar_today_outlined,
+                        onTap: () => Routemaster.of(context).push('/check-in'),
+                      ),
+                      hasCheckedInTodayAsync.when(
+                        data: (checkedIn) => !checkedIn
+                            ? const BlueDot()
+                            : const SizedBox.shrink(),
+                        loading: () => const SizedBox.shrink(),
+                        error: (e, s) => const SizedBox.shrink(),
+                      ),
+                      const SizedBox(width: 16),
+                      ForYouCard(
+                        title: 'Breathing Exercise',
+                        subtitle: 'Find your calm',
+                        icon: Icons.air,
+                        onTap: () {
+                          // TODO: Navigate to breathing exercise tool
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      ForYouCard(
+                        title: 'Guided Journeys',
+                        subtitle: 'Start a guided journey',
+                        icon: Icons.record_voice_over_rounded,
+                        onTap: () {
+                          Routemaster.of(context).push('/guided-journeys');
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -102,7 +135,9 @@ class HomeScreen extends ConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            ref.watch(dailyPromptProvider).when(
+            ref
+                .watch(dailyPromptProvider)
+                .when(
                   data: (prompt) {
                     if (prompt == null) {
                       // This will show if there are no prompts in Firestore
@@ -129,62 +164,6 @@ class HomeScreen extends ConsumerWidget {
                   error: (e, s) => const Text('Could not load insight.'),
                 ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// A reusable private widget for the helper cards
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onTap,
-    this.isEmphasized = false,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onTap;
-  final bool isEmphasized;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isEmphasized ? AppTheme.accentCoral : AppTheme.primaryBlue;
-    final bgColor = isEmphasized
-        ? AppTheme.accentCoral.withValues(alpha: 0.1)
-        : Colors.white;
-
-    return Card(
-      elevation: 0,
-      color: bgColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: isEmphasized
-            ? BorderSide.none
-            : BorderSide(color: Colors.grey[200]!),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: color, size: 28),
-              const SizedBox(height: 12),
-              Text(title,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16, color: color)),
-              const SizedBox(height: 4),
-              Text(subtitle,
-                  style: TextStyle(color: color.withValues(alpha: 0.8))),
-            ],
-          ),
         ),
       ),
     );

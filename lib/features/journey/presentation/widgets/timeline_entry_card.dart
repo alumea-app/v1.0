@@ -1,168 +1,102 @@
-// lib/features/journey/presentation/widgets/timeline_entry_card.dart
-import 'package:alumea/features/journey/domain/journey_entry.dart';
-import 'package:flutter/material.dart';
-import 'achievement_banner.dart'; // We'll create this next
+// // lib/features/journey/presentation/widgets/timeline_entry_widget.dart
+// import 'package:alumea/features/chat/presentation/widgets/date_separator.dart';
+// import 'package:alumea/features/journey/domain/journey_entry.dart';
+// import 'package:alumea/features/journey/presentation/widgets/timeline_node.dart';
+// import 'package:flutter/material.dart';
 
-class TimelineEntry extends StatelessWidget {
-  final JourneyEntry entry;
-  final bool isFirst;
-  final bool isLast;
-  final bool isLeftAligned;
+// // Import your card widgets (which we will create next)
 
-  const TimelineEntry({
-    super.key,
-    required this.entry,
-    this.isFirst = false,
-    this.isLast = false,
-    this.isLeftAligned = true,
-  });
+// class TimelineEntryWidget extends StatelessWidget {
+//   final JourneyEntry entry;
+//   final bool isLeftAligned;
 
-  @override
-  Widget build(BuildContext context) {
-    if (entry.type == EntryType.dateSeparator) {
-      return _DateSeparator(date: entry.title);
-    }
-    if (entry.type == EntryType.achievement) {
-      return AchievementBanner(entry: entry);
-    }
+//   const TimelineEntryWidget({
+//     super.key,
+//     required this.entry,
+//     this.isLeftAligned = true,
+//   });
 
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // This creates the dual-axis layout
-          if (!isLeftAligned) const Spacer(),
-          Expanded(flex: 5, child: _ContentCard(entry: entry, isLeftAligned: isLeftAligned)),
-          _TimelineNode(entry: entry, isFirst: isFirst, isLast: isLast),
-          if (isLeftAligned) const Spacer(),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     // This widget acts as a dispatcher. Based on the entry type,
+//     // it returns the correct card wrapped in the timeline layout.
 
-// -- PRIVATE HELPER WIDGETS --
+//     final Widget contentCard = _buildContentCard();
 
-class _ContentCard extends StatefulWidget {
-  final JourneyEntry entry;
-  final bool isLeftAligned;
-  const _ContentCard({required this.entry, required this.isLeftAligned});
+//     // For headers and separators, we don't need the dual-axis layout.
+//     if (entry.type == EntryType.header ||
+//         entry.type == EntryType.dateSeparator) {
+//       return contentCard;
+//     }
 
-  @override
-  __ContentCardState createState() => __ContentCardState();
-}
+//     return IntrinsicHeight(
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.stretch,
+//         children: [
+//           if (!isLeftAligned) const Spacer(),
+//           Expanded(flex: 5, child: contentCard),
+//           // We will create the TimelineNode painter in a separate file for cleanliness.
+//           TimelineNode(),
+//           if (isLeftAligned) const Spacer(),
+//         ],
+//       ),
+//     );
+//   }
 
-class __ContentCardState extends State<_ContentCard> {
-  bool _isExpanded = false;
+//   Widget _buildContentCard() {
+//     switch (entry.type) {
+//       case EntryType.header:
+//         return HeaderCard(title: entry.title!);
+//       case EntryType.dateSeparator:
+//         return DateSeparator(
+//           date: entry.timestamp,
+//         ); // Simple private widget
+//       case EntryType.checkIn:
+//         return CheckInCard(title: entry.title!, tags: entry.tags ?? []);
+//       case EntryType.chat:
+//         // TODO: Create a ChatCard widget
+//         return Card(
+//           child: ListTile(
+//             title: Text(entry.title!),
+//             subtitle: Text(entry.content!),
+//           ),
+//         );
+//       case EntryType.tool:
+//         // TODO: Create a ToolCard widget
+//         return Card(
+//           child: ListTile(
+//             title: Text(entry.title!),
+//             subtitle: Text(entry.content!),
+//           ),
+//         );
+//       default:
+//         return const SizedBox.shrink();
+//     }
+//   }
+// }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(
-        left: widget.isLeftAligned ? 0 : 20,
-        right: widget.isLeftAligned ? 20 : 0,
-        bottom: 24,
-      ),
-      child: InkWell(
-        onTap: () => setState(() => _isExpanded = !_isExpanded),
-        borderRadius: BorderRadius.circular(12),
-        child: Card(
-          elevation: 1,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.entry.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                if (widget.entry.subtitle != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.entry.subtitle!,
-                    maxLines: _isExpanded ? null : 2, // Expansion logic
-                    overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class CheckInCard extends StatelessWidget {
+//   final String title;
+//   final List<String> tags;
+//   const CheckInCard({super.key, required this.title, required this.tags});
 
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(
+//       child: ListTile(title: Text(title), subtitle: Text(tags.join(', '))),
+//     );
+//   }
+// }
 
-class _TimelineNode extends StatelessWidget {
-  final JourneyEntry entry;
-  final bool isFirst;
-  final bool isLast;
-  const _TimelineNode({required this.entry, this.isFirst = false, this.isLast = false});
+// class HeaderCard extends StatelessWidget {
+//   final String title;
+//   const HeaderCard({super.key, required this.title});
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 40, // Width for the timeline painter
-      child: CustomPaint(
-        painter: _TimelinePainter(
-          isFirst: isFirst,
-          isLast: isLast,
-          color: Theme.of(context).primaryColor,
-        ),
-        child: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(context).scaffoldBackgroundColor,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(entry.icon, size: 20, color: Theme.of(context).primaryColor),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(child: ListTile(title: Text(title)));
+//   }
+// }
 
-class _TimelinePainter extends CustomPainter {
-  final bool isFirst;
-  final bool isLast;
-  final Color color;
-
-  _TimelinePainter({required this.isFirst, required this.isLast, required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withOpacity(0.3)
-      ..strokeWidth = 2;
-
-    final double centerX = size.width / 2;
-    final double startY = isFirst ? size.height / 2 : 0;
-    final double endY = isLast ? size.height / 2 : size.height;
-
-    canvas.drawLine(Offset(centerX, startY), Offset(centerX, endY), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _DateSeparator extends StatelessWidget {
-  final String date;
-  const _DateSeparator({required this.date});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24.0),
-      child: Text(
-        date,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-      ),
-    );
-  }
-}
+// // TODO: Create _TimelineNode in its own file (similar to previous example with CustomPainter).
+// // TODO: Create _DateSeparator here or in its own file.

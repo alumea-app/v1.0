@@ -10,8 +10,8 @@ import 'package:routemaster/routemaster.dart';
 
 final checkInControllerProvider =
     StateNotifierProvider<CheckInController, CheckInModel>((ref) {
-  return CheckInController(ref.read(checkInRepositoryProvider));
-});
+      return CheckInController(ref.read(checkInRepositoryProvider));
+    });
 
 class CheckInScreen extends ConsumerStatefulWidget {
   const CheckInScreen({super.key});
@@ -30,7 +30,9 @@ class _CheckInScreenState extends ConsumerState<CheckInScreen> {
     super.didChangeDependencies();
     // Only run this logic once
     if (!_didRunProactiveLumiMessage) {
-      final source = Routemaster.of(context).currentRoute.queryParameters['source'];
+      final source = Routemaster.of(
+        context,
+      ).currentRoute.queryParameters['source'];
       if (source == 'checkin') {
         Future.delayed(const Duration(milliseconds: 1500), () {
           ref.read(chatControllerProvider.notifier).addProactiveLumiMessage();
@@ -69,7 +71,7 @@ class _CheckInScreenState extends ConsumerState<CheckInScreen> {
         title: const Text('Daily Check-in'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Routemaster.of(context).pop(),
+          onPressed: () => Routemaster.of(context).replace('/'),
         ),
       ),
       body: PageView(

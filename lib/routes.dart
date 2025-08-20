@@ -1,6 +1,7 @@
 import 'package:alumea/features/auth/presentation/login_screen.dart';
 import 'package:alumea/features/chat/presentation/chat_screen.dart';
 import 'package:alumea/features/check-in/presentation/reflection_screen.dart';
+import 'package:alumea/features/guided_journeys/presentation/guided_journey_list_screen.dart';
 import 'package:alumea/features/journey/presentation/journey_screen.dart';
 import 'package:alumea/features/check-in/presentation/check_in_screen.dart';
 import 'package:alumea/features/notifications/presentation/notifications_screen.dart';
@@ -62,10 +63,13 @@ final loggedInRoutes = RouteMap(
 
     //Route for reflection screen
     '/check-in/reflection': (routeData) => MaterialPage(
-  child: ReflectionScreen(
-    // We get the mood rating from the query parameters passed during navigation
-    moodRating: int.tryParse(routeData.queryParameters['mood'] ?? '3') ?? 3,
-  ),
-),
+      child: ReflectionScreen(
+        // We get the mood rating from the query parameters passed during navigation
+        moodRating: int.tryParse(routeData.queryParameters['mood'] ?? '3') ?? 3,
+      ),
+    ),
+
+    // Route for guided journeys screen
+    '/guided-journeys': (_) => const MaterialPage(child: GuidedJourneyListScreen()),
   },
 );

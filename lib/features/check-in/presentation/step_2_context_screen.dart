@@ -110,9 +110,10 @@ class _Step2ContextScreenState extends ConsumerState<Step2ContextScreen> {
               _InvitationTextField(
                 controller: noteController,
                 onChanged: (text) {
-                   ref.read(checkInControllerProvider.notifier).state =
-                      ref.read(checkInControllerProvider).copyWith(note: text);
-                }
+                  ref.read(checkInControllerProvider.notifier).state = ref
+                      .read(checkInControllerProvider)
+                      .copyWith(note: text);
+                },
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -136,19 +137,24 @@ class _PebbleChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedTags = ref.watch(checkInControllerProvider.select((s) => s.contextTags));
+    final selectedTags = ref.watch(
+      checkInControllerProvider.select((s) => s.activities),
+    );
     final isSelected = selectedTags.contains(tag);
 
     return GestureDetector(
       onTap: () {
-        final currentTags = List<String>.from(ref.read(checkInControllerProvider).contextTags);
+        final currentTags = List<String>.from(
+          ref.read(checkInControllerProvider).activities,
+        );
         if (!isSelected) {
           currentTags.add(tag);
         } else {
           currentTags.remove(tag);
         }
-        ref.read(checkInControllerProvider.notifier).state =
-            ref.read(checkInControllerProvider).copyWith(contextTags: currentTags);
+        ref.read(checkInControllerProvider.notifier).state = ref
+            .read(checkInControllerProvider)
+            .copyWith(activities: currentTags);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -161,18 +167,18 @@ class _PebbleChip extends ConsumerWidget {
               color: Colors.black.withOpacity(0.08),
               blurRadius: 10,
               offset: const Offset(0, 4),
-            )
+            ),
           ],
           border: Border.all(
             color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade300,
-            width: 1.5
-          )
+            width: 1.5,
+          ),
         ),
         child: Text(
           tag,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.white : AppTheme.primaryBlue
+            color: isSelected ? Colors.white : AppTheme.primaryBlue,
           ),
         ),
       ),
@@ -180,15 +186,17 @@ class _PebbleChip extends ConsumerWidget {
   }
 }
 
-
 class _InvitationTextField extends StatelessWidget {
   final TextEditingController controller;
   final Function(String) onChanged;
 
-  const _InvitationTextField({required this.controller, required this.onChanged});
-  
+  const _InvitationTextField({
+    required this.controller,
+    required this.onChanged,
+  });
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       onChanged: onChanged,
@@ -200,10 +208,14 @@ class _InvitationTextField extends StatelessWidget {
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
         // The floating label is the modern style
-        labelText: "Add a private note", 
+        labelText: "Add a private note",
         labelStyle: TextStyle(color: Colors.grey.shade600),
         // A subtle prefix icon
-        prefixIcon: Icon(Icons.edit_outlined, color: Colors.grey.shade400, size: 20,),
+        prefixIcon: Icon(
+          Icons.edit_outlined,
+          color: Colors.grey.shade400,
+          size: 20,
+        ),
         // Use the filled property to give it a very light background color
         // that separates it from the main screen background
         filled: true,

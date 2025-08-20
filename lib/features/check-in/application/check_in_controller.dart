@@ -6,25 +6,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // The provider for our controller.
 final checkInControllerProvider =
     StateNotifierProvider.autoDispose<CheckInController, CheckInModel>((ref) {
-  // It depends on the repository to save the data.
-  return CheckInController(ref.read(checkInRepositoryProvider));
-});
+      // It depends on the repository to save the data.
+      return CheckInController(ref.read(checkInRepositoryProvider));
+    });
 
 class CheckInController extends StateNotifier<CheckInModel> {
   final CheckInRepository _repository;
   CheckInController(this._repository)
-      : super(CheckInModel(
-          moodRating: 0,
-          contextTags: [],
-          timestamp: DateTime.now(),
-        ));
+    : super(
+        CheckInModel(moodRating: 0, activities: [], timestamp: DateTime.now()),
+      );
 
   void updateMood(int rating) {
     state = state.copyWith(moodRating: rating);
   }
 
   void updateTags(List<String> tags) {
-    state = state.copyWith(contextTags: tags);
+    state = state.copyWith(activities: tags);
   }
 
   void updateNote(String note) {
