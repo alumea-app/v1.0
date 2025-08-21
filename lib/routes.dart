@@ -70,6 +70,6 @@ final loggedInRoutes = RouteMap(
     ),
 
     // Route for guided journeys screen
-    '/guided-journeys': (_) => const MaterialPage(child: GuidedJourneyListScreen()),
+    '/guided-journeys': (_) => const MaterialPage(child: GuidedJourneysListScreen()),
   },
 );

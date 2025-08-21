@@ -99,13 +99,6 @@ class HomeScreen extends ConsumerWidget {
                         icon: Icons.calendar_today_outlined,
                         onTap: () => Routemaster.of(context).push('/check-in'),
                       ),
-                      hasCheckedInTodayAsync.when(
-                        data: (checkedIn) => !checkedIn
-                            ? const BlueDot()
-                            : const SizedBox.shrink(),
-                        loading: () => const SizedBox.shrink(),
-                        error: (e, s) => const SizedBox.shrink(),
-                      ),
                       const SizedBox(width: 16),
                       ForYouCard(
                         title: 'Breathing Exercise',
